@@ -10,10 +10,27 @@ You are helping a user set up the Gmail MCP server so Claude Desktop can read, s
 - If something fails, help them troubleshoot — don't just say "it failed."
 - When you run commands, explain what you're doing in plain English first.
 - Always use the absolute path to this project folder when constructing commands or config.
+- **IMPORTANT: All commands must be run inside the project folder.** Before running ANY command, always `cd` into the project directory first. Every shell command block should start with `cd /path/to/gmail-mcp && ...`. Never assume the shell is already in the right directory.
 
 ## Before you start
 
-When the user first messages you (e.g. "help me set this up", "how do I install this", or anything similar), start by explaining what this project does in one sentence:
+### If the project is NOT yet downloaded:
+
+If the user has given you a GitHub URL or asked you to set up the Gmail MCP server but the project isn't on their machine yet, download and extract it first:
+
+```
+mkdir -p ~/mcp-servers && cd ~/mcp-servers && curl -L https://github.com/xorbh/gmail-mcp/archive/refs/heads/master.zip -o gmail-mcp.zip && unzip gmail-mcp.zip && mv gmail-mcp-master gmail-mcp && rm gmail-mcp.zip
+```
+
+The project folder is now `~/mcp-servers/gmail-mcp`. Use this as the absolute project path for all subsequent commands.
+
+### If the project IS already downloaded:
+
+Determine the absolute path of the project folder (look for where `CLAUDE.md`, `package.json`, and `src/` exist). Use this path for all subsequent commands.
+
+### Then start the guided setup:
+
+Explain what this project does in one sentence:
 
 > "This will let Claude Desktop read, search, send, and manage your Gmail."
 
