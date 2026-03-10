@@ -265,7 +265,7 @@ Tell the user: "Now I'm going to install the required packages. This might take 
 
 Run:
 ```
-npm install
+cd PROJECT_PATH && npm install
 ```
 
 ### If it succeeds:
@@ -277,8 +277,7 @@ Common issues:
 - **Network errors:** Ask if they're behind a corporate firewall or VPN
 - **Other errors:** Try cleaning and retrying:
   ```
-  rm -rf node_modules package-lock.json
-  npm install
+  cd PROJECT_PATH && rm -rf node_modules package-lock.json && npm install
   ```
 
 ---
@@ -289,7 +288,7 @@ Tell the user: "Now I'll compile the project."
 
 Run:
 ```
-npm run build
+cd PROJECT_PATH && npm run build
 ```
 
 ### If it succeeds:
@@ -312,10 +311,10 @@ Tell the user:
 >
 > "Then paste this command:"
 
-Give them the exact command with the **absolute path** to the project folder (use the path you determined earlier, e.g. `~/mcp-servers/gmail-mcp`):
+Give them the exact command with the **absolute PROJECT_PATH** you saved from Step 0:
 
 ```
-cd ABSOLUTE_PATH && npm run auth -- --config-dir config/CONNECTION_NAME
+cd PROJECT_PATH && npm run auth -- --config-dir config/CONNECTION_NAME
 ```
 
 Then tell them:
@@ -333,7 +332,7 @@ Then tell them:
 ### After they confirm it worked:
 Verify the token file exists:
 ```
-ls ABSOLUTE_PATH/config/CONNECTION_NAME/token.json
+ls PROJECT_PATH/config/CONNECTION_NAME/token.json
 ```
 If it exists, tell them: "Excellent! Your Google account is connected. Almost done!"
 
@@ -349,9 +348,7 @@ If it exists, tell them: "Excellent! Your Google account is connected. Almost do
 
 Tell the user: "Last step! We need to tell Claude Desktop about this server."
 
-First, get the absolute path of this project folder by running `pwd`.
-
-Then tell the user:
+Use the PROJECT_PATH you saved from Step 0. Then tell the user:
 
 1. Open **Claude Desktop** (the app, not this website)
 2. Click the **Claude** menu at the top of your screen
@@ -372,12 +369,12 @@ Tell them to replace everything with:
   "mcpServers": {
     "CONNECTION_NAME-gmail": {
       "command": "node",
-      "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/CONNECTION_NAME", "--name", "CONNECTION_NAME-gmail"]
+      "args": ["PROJECT_PATH/dist/index.js", "--config-dir", "PROJECT_PATH/config/CONNECTION_NAME", "--name", "CONNECTION_NAME-gmail"]
     }
   }
 }
 ```
-Replace `ABSOLUTE_PATH` with the actual project path and `CONNECTION_NAME` with the name they chose (e.g., `personal`, `work`).
+Replace `PROJECT_PATH` with the actual project path and `CONNECTION_NAME` with the name they chose (e.g., `personal`, `work`).
 
 For example, if they chose "personal" and the project is at `/Users/joe/google-mcps/gmail-mcp`:
 ```json
@@ -453,10 +450,7 @@ Before adding any accounts, figure out the full picture:
    ```
    This tells you which profiles are already set up so you don't create duplicates.
 
-3. **Rename the default profile if needed.** If the user says something like "my first account was personal, now I want to add work", consider suggesting:
-   > "Right now your first account is called 'gmail' in Claude Desktop. Would you like me to rename it to 'gmail-personal' so it's clearer which is which?"
-
-   If yes, you'll update the Claude Desktop config entry name (and `--name` flag) for the default profile too.
+3. **Check for naming conflicts.** Since the first account already has a CONNECTION_NAME, make sure the new profile names don't conflict with existing ones.
 
 4. **Make a plan and share it with the user.** For example:
    > "OK, here's my plan: I'll set up 2 additional profiles — 'work' and 'school'. For each one, I'll run the Google sign-in process (you'll need to sign in with that account), and then I'll update the Claude Desktop config with all three accounts at the end. Sound good?"
@@ -483,9 +477,9 @@ Explain: "I'm creating a separate config for your [PROFILE_NAME] account. The Go
 Tell the user:
 > "Open Terminal again and paste this command:"
 
-Give them the exact command:
+Give them the exact command with the real PROJECT_PATH:
 ```
-cd ABSOLUTE_PATH && npm run auth -- --config-dir config/PROFILE_NAME
+cd PROJECT_PATH && npm run auth -- --config-dir config/PROFILE_NAME
 ```
 
 Then tell them:
@@ -519,25 +513,24 @@ This is the most important part — do this ONCE at the end, after all accounts 
    ```
 
 4. Construct the full `mcpServers` config. The naming convention is:
-   - The `default` profile uses the server name `"gmail"`
-   - All other profiles use `"gmail-PROFILE_NAME"`
-   - Non-default profiles get the `--name` flag so Claude can tell them apart
+   - Every profile uses `"PROFILE_NAME-gmail"` as the server name
+   - Every profile gets the `--name` flag so Claude can tell the accounts apart
 
-   Example with 3 accounts:
+   Example with 3 accounts (personal, work, school):
    ```json
    {
      "mcpServers": {
-       "gmail": {
+       "personal-gmail": {
          "command": "node",
-         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/CONNECTION_NAME"]
+         "args": ["PROJECT_PATH/dist/index.js", "--config-dir", "PROJECT_PATH/config/personal", "--name", "personal-gmail"]
        },
-       "gmail-work": {
+       "work-gmail": {
          "command": "node",
-         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/work", "--name", "gmail-work"]
+         "args": ["PROJECT_PATH/dist/index.js", "--config-dir", "PROJECT_PATH/config/work", "--name", "work-gmail"]
        },
-       "gmail-school": {
+       "school-gmail": {
          "command": "node",
-         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/school", "--name", "gmail-school"]
+         "args": ["PROJECT_PATH/dist/index.js", "--config-dir", "PROJECT_PATH/config/school", "--name", "school-gmail"]
        }
      }
    }
@@ -561,7 +554,7 @@ If the user runs into problems at any point, here are common fixes:
 - Verify Claude Desktop was fully quit and reopened (Cmd+Q, not just closing the window)
 - Check that the file paths in the config are correct and the files exist
 - Check for JSON syntax errors in the config file (missing commas, extra commas, unclosed braces)
-- Run `node ABSOLUTE_PATH/dist/index.js --config-dir ABSOLUTE_PATH/config/CONNECTION_NAME` directly to see if there's an error
+- Run `node PROJECT_PATH/dist/index.js --config-dir PROJECT_PATH/config/CONNECTION_NAME` directly to see if there's an error
 
 ### "Missing credentials.json" or "Missing token.json"
 - Check if the files exist in the config directory
@@ -569,10 +562,13 @@ If the user runs into problems at any point, here are common fixes:
 - If token.json is missing, re-run the auth step (Step 5)
 
 ### "Token has been expired or revoked"
-- Delete the token file and re-authorize:
+- Delete the token file and re-authorize. The user must run the auth command in Terminal:
 ```
-rm config/CONNECTION_NAME/token.json
-npm run auth -- --config-dir config/CONNECTION_NAME
+cd PROJECT_PATH && rm config/CONNECTION_NAME/token.json
+```
+Then have the user run in Terminal:
+```
+cd PROJECT_PATH && npm run auth -- --config-dir config/CONNECTION_NAME
 ```
 
 ### "Error: listen EADDRINUSE :::3847"
